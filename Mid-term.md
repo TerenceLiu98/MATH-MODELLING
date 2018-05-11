@@ -8,7 +8,7 @@
 
 1.( *Mixing tanks*) Two very large tanks *A* and *B* are each partially filled with 100 gallons of brine. Initially, 100 pounds of salt is dissolved in the solution in tank *A* and 50 pounds of salt is dissolved in the solution in tank *B*. The system is closed in that the well-stirred liquid is pumped only between the tanks, as shown in Figure 1.
 
-![Screen Shot 2018-05-10 at 11.57.24 AM](/Users/liujunjie/Desktop/Screen Shot 2018-05-10 at 11.57.24 AM.png)
+[![1.png](https://i.loli.net/2018/05/11/5af51f6397c63.png)](https://i.loli.net/2018/05/11/5af51f6397c63.png)
 
  
 
@@ -40,7 +40,7 @@
 
 (Assume here that the temperature, $T(t)$ of the metal bar does not affect the temperature, $T_A(t)$ of the medium in container *A*)
 
-![Screen Shot 2018-05-10 at 11.58.30 AM](/Users/liujunjie/Desktop/Screen Shot 2018-05-10 at 11.58.30 AM.png)
+[![2.png](https://i.loli.net/2018/05/11/5af51f63b9fe0.png)](https://i.loli.net/2018/05/11/5af51f63b9fe0.png)
 
  
 
@@ -214,7 +214,7 @@ For more information, see: <https://en.wikipedia.org/wiki/Secretary_problem> or
 
 <http://www.math.uah.edu/stat/urn/Secretary.html>
 
-  ![Screen Shot 2018-05-10 at 12.05.32 PM](/Users/liujunjie/Desktop/Screen Shot 2018-05-10 at 12.05.32 PM.png)
+  [![4.png](https://i.loli.net/2018/05/11/5af51f63c054c.png)](https://i.loli.net/2018/05/11/5af51f63c054c.png)
 
 <font color ="red">Answer</font> 
 
@@ -238,7 +238,90 @@ For more information, see: <https://en.wikipedia.org/wiki/Secretary_problem> or
 >
 > $p_n(k) = P(S_{n,k}) = \begin{cases} \frac{1}{n}, & k = 1 \\ \frac{k - 1}{n} \sum_{j=k}^n \frac{1}{j - 1},  &k \in \{2, 3, \ldots, n\} \end{cases}$
 >
-> I use R to 
+> I use Python to do the simulation:
+>
+> ```Python
+> import math
+> import random
+> 
+> NUMBER_OF_TESTS = 1000
+> SIZE_OF_SAMPLE = 50
+> 
+> def generate_candidates(n):
+> 	l = []
+> 	for i in range(n):
+> 		randPos = random.randint(0,len(l))
+> 		l.insert(randPos, i)
+> 	return l
+> 
+> def interview(candidates, m):
+> 	n = len(candidates)
+> 	assert (n > m)
+> 	assert (n > 1)
+> 	best_candidate = candidates[0]
+> 	# find best candidate in the first m candidates
+> 	for i in range(m):
+> 		if (candidates[i] > best_candidate):
+> 			best_candidate= candidates[i]
+> 	# find a new better candidate
+> 	for i in range(m, n):
+> 		if (candidates[i] > best_candidate):
+> 			return candidates[i]
+> 	return None
+> 
+> def compute_best_m(n):
+> 	return int(round(n/math.e))
+> 
+> if __name__ == "__main__":
+> 	fileM = open("output_m.csv", "w")
+> 	fileV = open("output_value.csv", "w")
+> 	list_of_m = []
+> 	for i in range(0, SIZE_OF_SAMPLE, 1):
+> 		list_of_m.append(i)
+> 	#list_of_m.append(compute_best_m(SIZE_OF_SAMPLE))
+> 	current_best_success = 0
+> 	current_best_m = 0
+> 	theor_best_m = compute_best_m(SIZE_OF_SAMPLE)
+> 	theor_best_success = 0
+> 	for m in list_of_m:
+> 		print m, "/", len(list_of_m)
+> 		successCount = 0
+> 		testCount = 0
+> 		for i in range(NUMBER_OF_TESTS):
+> 			candidates = generate_candidates(SIZE_OF_SAMPLE)
+> 			bestCandidate = max(candidates)
+> 			hiredGuy = interview(candidates, m)
+> 			if (hiredGuy == bestCandidate):
+> 				successCount += 1
+> 			testCount += 1
+> 		successRate = float(successCount)/testCount
+> 		if (successRate > current_best_success):
+> 			current_best_success = successRate
+> 			current_best_m = m
+> 		if (m == theor_best_m):
+> 			theor_best_success = successRate
+> 		fileM.write(str(m) + ",\n")
+> 		fileV.write(str(successRate) + ",\n")
+> 	print "theoretical value :", theor_best_m, "success:", theor_best_success, "> 1/e = ", round(1/math.e, 2)
+> 	print "actual best m :", current_best_m, "success:", current_best_success
+> ```
+>
+> 1. When the size o the sample is $50$ : 
+>
+>    we can get :
+>
+>    >  theoretical value : $18$ success: $0.354 > \frac{1}{e} =  0.3$
+>    >
+>    > actual best m : $14$ success: $0.404$
+>
+> 2. When the size of the sample is $10$:
+>
+>    We can get:
+>
+>    > theoretical value : $4$ success: $0.366 >\frac{1}{e}  =  0.37$
+>    > actual best m : $3$ success: $0.406$
+>
+> [![success_m_graph.png](https://i.loli.net/2018/05/11/5af52141e7373.png)](https://i.loli.net/2018/05/11/5af52141e7373.png)
 >
 > 
 >
